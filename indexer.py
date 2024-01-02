@@ -2,11 +2,12 @@ from functools import partial
 from pathlib import Path
 
 import ray
-from ray.data import ActorPoolStrategy
 
 from embeddings import EmbedChunks
 from html_section_parser import extract_sections
 from text_splitter import chunk_section
+
+ray.init(ignore_reinit_error=True, num_gpus=None, num_cpus=1)
 
 
 def get_html_files(directory, num_files):
@@ -21,7 +22,7 @@ def main():
     base_dir = Path(__file__).parent
     EFS_DIR = "desired/output/directory"
     DOCS_DIR = Path(base_dir, EFS_DIR, "docs.ray.io/en/master/")
-    num_files_to_process = 10
+    num_files_to_process = 4
 
     # Get a list of HTML file paths
     html_files = get_html_files(DOCS_DIR, num_files_to_process)
@@ -50,13 +51,18 @@ if __name__ == "__main__":
     chunks_ds = sections_ds.flat_map(
         partial(chunk_section, chunk_size=chunk_size, chunk_overlap=chunk_overlap)
     )
-    print(f"{chunks_ds.count()} chunks")
+    # l = chunks_ds.take_all()
 
     # Embed chunks
     embedded_chunks = chunks_ds.map_batches(
         EmbedChunks,
         fn_constructor_kwargs={"model_name": "text-embedding-ada-002"},
-        batch_size=100,
-        num_gpus=1,
-        compute=ActorPoolStrategy(size=1),
+        concurrency=1,
     )
+    # l = embedded_chunks.take_all()
+    # print(l)
+    # Index data
+    # embedded_chunks.map_batches(
+    #     StoreResults,
+    #     concurrency=1
+    # ).count()
