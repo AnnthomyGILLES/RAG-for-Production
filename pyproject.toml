@@ -6,7 +6,7 @@ authors = ["Annthomy Gilles <professional@willofv.mozmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = ">=3.11,<3.13"
 pre-commit = "^3.6.0"
 ray = { extras = ["default"], version = "^2.9.0" }
 pandas = "^2.1.4"
@@ -18,9 +18,11 @@ langchain = "^0.0.353"
 python-dotenv = "^1.0.0"
 pgvector = "^0.2.4"
 psycopg = { extras = ["binary"], version = "^3.1.16" }
-chromadb = "^0.4.21"
 openai = "^1.6.1"
 tiktoken = "^0.5.2"
+pillow = "^10.2.0"
+loguru = "^0.7.2"
+chromadb = "^0.4.22"
 
 
 [build-system]
