@@ -1,10 +1,8 @@
-from functools import partial
-
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from ray.data import from_items
 
 
-def chunk_section(section, chunk_size, chunk_overlap):
+def chunk_section(section, chunk_size=300, chunk_overlap=50):
     text_splitter = RecursiveCharacterTextSplitter(
         separators=["\n\n", "\n", " ", ""],
         chunk_size=chunk_size,
@@ -44,8 +42,6 @@ if __name__ == "__main__":
     chunk_overlap = 50
     separators = ["\n\n", "\n", " ", ""]
 
-    chunks_ds = sections_ds.flat_map(
-        partial(chunk_section, chunk_size=chunk_size, chunk_overlap=chunk_overlap)
-    )
+    chunks_ds = sections_ds.flat_map(chunk_section)
     print(f"{chunks_ds.count()} chunks")
     chunks_ds.show(1)
