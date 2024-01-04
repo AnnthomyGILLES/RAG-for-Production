@@ -1,13 +1,19 @@
-from functools import partial
+import uuid
 from pathlib import Path
 
 import ray
 
 from embeddings import EmbedChunks
 from html_section_parser import extract_sections
+from storage import StoreResults
 from text_splitter import chunk_section
 
-ray.init(ignore_reinit_error=True, num_gpus=None, num_cpus=1)
+ray.init(ignore_reinit_error=True, num_gpus=None, num_cpus=4)
+
+
+def add_unique_id(batch):
+    batch["index"] = [f"{i}-{uuid.uuid4()}" for i in range(len(batch))]
+    return batch
 
 
 def get_html_files(directory, num_files):
@@ -48,10 +54,7 @@ if __name__ == "__main__":
     separators = ["\n\n", "\n", " ", ""]
 
     # Create chunks dataset
-    chunks_ds = sections_ds.flat_map(
-        partial(chunk_section, chunk_size=chunk_size, chunk_overlap=chunk_overlap)
-    )
-    # l = chunks_ds.take_all()
+    chunks_ds = sections_ds.flat_map(chunk_section)
 
     # Embed chunks
     embedded_chunks = chunks_ds.map_batches(
@@ -59,10 +62,14 @@ if __name__ == "__main__":
         fn_constructor_kwargs={"model_name": "text-embedding-ada-002"},
         concurrency=1,
     )
-    # l = embedded_chunks.take_all()
-    # print(l)
+
+    ray_dataset_with_index = embedded_chunks.map_batches(
+        add_unique_id, batch_format="pandas"
+    )
+
     # Index data
-    # embedded_chunks.map_batches(
-    #     StoreResults,
-    #     concurrency=1
-    # ).count()
+    _ = ray_dataset_with_index.map_batches(
+        StoreResults,
+        batch_size=128,
+        concurrency=1,
+    ).count()
