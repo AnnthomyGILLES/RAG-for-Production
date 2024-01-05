@@ -16,13 +16,21 @@ embedding_function = OpenAIEmbeddingFunction(
 
 
 class StoreResults:
+    _instance = None  # Class variable to store the singleton instance
+
     def __init__(self):
-        # Initialize ChromaDB client
-        self.chroma_client = chromadb.PersistentClient(path="./chromadb")
         self.collection = self.chroma_client.get_or_create_collection(
             name="ray-documentation",
             embedding_function=embedding_function,
         )
+
+    def __new__(cls):
+        # Create instance if not already created
+        if cls._instance is None:
+            cls._instance = super(StoreResults, cls).__new__(cls)
+            # Initialize ChromaDB client
+            cls._instance.chroma_client = chromadb.PersistentClient(path="./chromadb")
+        return cls._instance
 
     def __call__(self, batch):
         try:
