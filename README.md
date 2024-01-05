@@ -1,4 +1,4 @@
-# Readme: Building a Production-Ready RAG-based LLM Python Application
+# Building a Production-Ready RAG-based LLM Python Application
 
 ## Introduction
 
