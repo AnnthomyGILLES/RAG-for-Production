@@ -23,6 +23,8 @@ tiktoken = "^0.5.2"
 pillow = "^10.2.0"
 loguru = "^0.7.2"
 chromadb = "^0.4.22"
+arxiv = "^2.1.0"
+pypdf = "^3.17.4"
 
 
 [build-system]
