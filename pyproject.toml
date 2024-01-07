@@ -25,6 +25,10 @@ loguru = "^0.7.2"
 chromadb = "^0.4.22"
 arxiv = "^2.1.0"
 pypdf = "^3.17.4"
+ratelimit = "^2.2.1"
+types-requests = "^2.31.0.20240106"
+mypy = "^1.8.0"
+requests = "^2.31.0"
 
 
 [build-system]
