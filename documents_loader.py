@@ -1,9 +1,10 @@
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
-from typing import List
+from typing import List, Dict
 
 import arxiv
 import requests  # type: ignore
+from langchain_community.document_loaders import PyPDFLoader
 from loguru import logger
 from ratelimit import limits, sleep_and_retry
 
@@ -102,6 +103,43 @@ def download_papers_from_arxiv(output_directory: Path, search_query: str, max_re
     logger.info("Download complete.")
 
 
+def ingest_documents(input_directory: Path, max_docs: int = 1) -> List[Dict[str, str]]:
+    """
+    Ingests a specified number of PDF documents from a given directory, extracting their content.
+
+    This function searches for PDF files in the specified directory, up to a maximum number specified by `max_docs`.
+    It processes each PDF file, extracting its content and metadata using the PyPDFLoader from the langchain package.
+    The extracted content is returned as a list of dictionaries, each containing the source and text of a page from the PDFs.
+
+    Args:
+        input_directory (Path): The directory path where the PDF files are located.
+        max_docs (int, optional): The maximum number of PDF documents to process. Defaults to 1.
+
+    Returns:
+        List[Dict[str, str]]: A list of dictionaries, each containing 'source' and 'text' keys corresponding to the
+                              metadata and content of each page in the processed PDF documents.
+
+    Note:
+        This function assumes that the `langchain` package and its `PyPDFLoader` class are available in your environment.
+        If not, you'll need to install or import the necessary libraries.
+    """
+
+    pdf_files = list(input_directory.glob('*.pdf'))[:max_docs]
+    langchain_documents = []
+
+    # Process each PDF file found
+    for document in pdf_files:
+        loader = PyPDFLoader(str(document))
+        data = loader.load()
+        for item in data:
+            langchain_documents.append({
+                "source": item.metadata['source'],
+                "text": item.page_content
+            })
+
+    return langchain_documents
+
+
 if __name__ == '__main__':
     output_directory = Path.cwd() / "data" / "raw"
     output_directory.mkdir(parents=True, exist_ok=True)
@@ -109,4 +147,7 @@ if __name__ == '__main__':
     search_query = "machine learning"
     max_results = 1
 
-    download_papers_from_arxiv(output_directory, search_query, max_results)
+    # download_papers_from_arxiv(output_directory, search_query, max_results)
+    langchain_documents = ingest_documents(output_directory)
+
+    print(langchain_documents)
