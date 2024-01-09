@@ -144,10 +144,7 @@ if __name__ == '__main__':
     output_directory = Path.cwd() / "data" / "raw"
     output_directory.mkdir(parents=True, exist_ok=True)
 
-    search_query = "machine learning"
-    max_results = 1
+    search_query = "large language model"
+    max_results = 2
 
-    # download_papers_from_arxiv(output_directory, search_query, max_results)
-    langchain_documents = ingest_documents(output_directory)
-
-    print(langchain_documents)
+    download_papers_from_arxiv(output_directory, search_query, max_results)
