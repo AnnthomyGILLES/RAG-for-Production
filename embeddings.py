@@ -25,7 +25,7 @@ class EmbedChunks:
     def __call__(self, batch):
         embeddings = self.embedding_model.embed_documents(batch["text"])
         return {
-            "text": batch["text"],
+            "text": batch["tesxt"],
             "source": batch["source"],
             "embeddings": embeddings,
         }
