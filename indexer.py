@@ -10,8 +10,7 @@ from embeddings import EmbedChunks
 from splitter import chunk_section
 from storage import StoreResults
 
-# ray.init(ignore_reinit_error=True, num_gpus=None, num_cpus=4)
-ray.init(ignore_reinit_error=True, **config['ray_init'])
+ray.init(ignore_reinit_error=True, **config["ray_init"])
 
 
 def add_unique_id(batch):
@@ -20,7 +19,7 @@ def add_unique_id(batch):
 
 
 def main():
-    directory_path = Path(__file__).parent / config['directory_path']
+    directory_path = Path(__file__).parent / config["directory_path"]
 
     langchain_documents = ingest_documents(directory_path)
 
@@ -37,11 +36,11 @@ if __name__ == "__main__":
     chunks_ds = sections_ds.flat_map(chunk_section)
 
     # Embed chunks
-    fn_constructor_kwargs = {"model_name": config['embedding']['model_name']}
+    fn_constructor_kwargs = {"model_name": config["embedding"]["model_name"]}
     embedded_chunks = chunks_ds.map_batches(
         EmbedChunks,
         fn_constructor_kwargs=fn_constructor_kwargs,
-        concurrency=config['batch_processing']["concurrency"],
+        concurrency=config["batch_processing"]["concurrency"],
     )
 
     ray_dataset_with_index = embedded_chunks.map_batches(
@@ -51,6 +50,6 @@ if __name__ == "__main__":
     # Index data
     _ = ray_dataset_with_index.map_batches(
         StoreResults,
-        batch_size=config['batch_processing']["batch_size"],
-        concurrency=config['batch_processing']["concurrency"],
+        batch_size=config["batch_processing"]["batch_size"],
+        concurrency=config["batch_processing"]["concurrency"],
     ).count()
