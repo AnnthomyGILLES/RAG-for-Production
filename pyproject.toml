@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "rag-for-production"
+name = "RAG-for-production"
 version = "0.1.0"
 description = ""
 authors = ["Annthomy Gilles <professional@willofv.mozmail.com>"]
