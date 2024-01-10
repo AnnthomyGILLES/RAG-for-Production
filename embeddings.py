@@ -8,6 +8,8 @@ load_dotenv()
 
 OPENAI_API = os.getenv("OPENAI_API")
 
+print("ok")
+
 
 class EmbedChunks:
     def __init__(self, model_name):
