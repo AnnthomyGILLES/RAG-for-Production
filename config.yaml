@@ -1,0 +1,21 @@
+ray_init:
+  num_gpus: null
+  num_cpus: 4
+
+directory_path: "data/raw"
+
+chunking_parameters:
+  chunk_size: 300
+  chunk_overlap: 50
+  separators:
+    - "\n\n"
+    - "\n"
+    - " "
+    - ""
+
+embedding:
+  model_name: "all-MiniLM-L6-v2"
+
+batch_processing:
+  batch_size: 128
+  concurrency: 1

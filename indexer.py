@@ -2,13 +2,16 @@ import uuid
 from pathlib import Path
 
 import ray
+from loguru import logger
 
+from config import config
+from documents_loader import ingest_documents
 from embeddings import EmbedChunks
-from html_section_parser import extract_sections
+from splitter import chunk_section
 from storage import StoreResults
-from text_splitter import chunk_section
 
-ray.init(ignore_reinit_error=True, num_gpus=None, num_cpus=4)
+# ray.init(ignore_reinit_error=True, num_gpus=None, num_cpus=4)
+ray.init(ignore_reinit_error=True, **config['ray_init'])
 
 
 def add_unique_id(batch):
@@ -16,51 +19,29 @@ def add_unique_id(batch):
     return batch
 
 
-def get_html_files(directory, num_files):
-    """
-    Retrieve a list of HTML file paths up to a specified limit from a directory.
-    """
-    html_files = [path for path in directory.rglob("*.html") if not path.is_dir()]
-    return html_files[:num_files]
-
-
 def main():
-    base_dir = Path(__file__).parent
-    EFS_DIR = "desired/output/directory"
-    DOCS_DIR = Path(base_dir, EFS_DIR, "docs.ray.io/en/master/")
-    num_files_to_process = 4
+    directory_path = Path(__file__).parent / config['directory_path']
 
-    # Get a list of HTML file paths
-    html_files = get_html_files(DOCS_DIR, num_files_to_process)
+    langchain_documents = ingest_documents(directory_path)
 
-    # Create a Ray data set from the file paths
-    ds = ray.data.from_items([{"path": path} for path in html_files])
+    ds = ray.data.from_items(langchain_documents)
 
-    # Print the count of documents in the data set
-    print(f"{ds.count()} documents")
-
-    # Extract sections from a specific document and create a data set of sections
-    sections_ds = ds.flat_map(extract_sections)
-
-    return sections_ds
+    logger.info(f"{ds.count()} documents")
+    return ds
 
 
 if __name__ == "__main__":
     sections_ds = main()
 
-    # Define chunking parameters
-    chunk_size = 300
-    chunk_overlap = 50
-    separators = ["\n\n", "\n", " ", ""]
-
     # Create chunks dataset
     chunks_ds = sections_ds.flat_map(chunk_section)
 
     # Embed chunks
+    fn_constructor_kwargs = {"model_name": config['embedding']['model_name']}
     embedded_chunks = chunks_ds.map_batches(
         EmbedChunks,
-        fn_constructor_kwargs={"model_name": "text-embedding-ada-002"},
-        concurrency=1,
+        fn_constructor_kwargs=fn_constructor_kwargs,
+        concurrency=config['batch_processing']["concurrency"],
     )
 
     ray_dataset_with_index = embedded_chunks.map_batches(
@@ -70,6 +51,6 @@ if __name__ == "__main__":
     # Index data
     _ = ray_dataset_with_index.map_batches(
         StoreResults,
-        batch_size=128,
-        concurrency=1,
+        batch_size=config['batch_processing']["batch_size"],
+        concurrency=config['batch_processing']["concurrency"],
     ).count()

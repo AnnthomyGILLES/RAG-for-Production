@@ -1,8 +1,10 @@
+from typing import Dict, Any, List
+
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from ray.data import from_items
 
 
-def chunk_section(section, chunk_size=300, chunk_overlap=50):
+def chunk_section(section: Dict[str, Any], chunk_size: int = 300, chunk_overlap: int = 50) -> List[Dict[str, Any]]:
     text_splitter = RecursiveCharacterTextSplitter(
         separators=["\n\n", "\n", " ", ""],
         chunk_size=chunk_size,
@@ -10,7 +12,8 @@ def chunk_section(section, chunk_size=300, chunk_overlap=50):
         length_function=len,
     )
     chunks = text_splitter.create_documents(
-        texts=[section["text"]], metadatas=[{"source": section["source"]}]
+        texts=[section["text"]],
+        metadatas=[{"source": section["source"]}]
     )
     return [
         {"text": chunk.page_content, "source": chunk.metadata["source"]}
