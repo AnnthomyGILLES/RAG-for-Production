@@ -25,16 +25,17 @@ def rag(query, retrieved_documents, model="gpt-3.5-turbo"):
     response = openai_client.chat.completions.create(
         model=model,
         messages=messages,
+        temperature=0.7,
     )
     content = response.choices[0].message.content
     return content
 
 
 if __name__ == '__main__':
-    query = "Tell me about Head Node"
+    query = "what are the strategies to mitigate hallucination in llm"
     store = StoreResults()
     results = store.collection.query(
-        query_texts=[query], n_results=2
+        query_texts=[query], n_results=10
     )
     retrieved_documents = results['documents'][0]
 
