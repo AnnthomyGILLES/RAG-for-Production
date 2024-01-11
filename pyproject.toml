@@ -8,7 +8,6 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = ">=3.11,<3.13"
 pre-commit = "^3.6.0"
-ray = { extras = ["default"], version = "^2.9.0" }
 pandas = "^2.1.4"
 pyarrow = "^14.0.2"
 beautifulsoup4 = "^4.12.2"
@@ -32,6 +31,12 @@ requests = "^2.31.0"
 sentence-transformers = "^2.2.2"
 pyyaml = "^6.0.1"
 types-pyyaml = "^6.0.12.12"
+torch = "^2.1.2"
+torchvision = "^0.16.2"
+torchaudio = "^2.1.2"
+ray = "^2.9.0"
+umap-learn = "^0.5.5"
+matplotlib = "^3.8.2"
 
 
 [build-system]
