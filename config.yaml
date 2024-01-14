@@ -13,8 +13,9 @@ chunking_parameters:
     - " "
     - ""
 
-embedding:
-  model_name: "all-MiniLM-L6-v2"
+models:
+  embedding: "all-MiniLM-L6-v2"
+  retrieval: "gpt-3.5-turbo-1106"
 
 batch_processing:
   batch_size: 128

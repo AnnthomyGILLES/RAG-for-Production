@@ -8,7 +8,7 @@ from config import config
 load_dotenv()
 
 openai_client = OpenAI(api_key=os.getenv("OPENAI_API"))
-MODEL = config["embedding"]["retrieval"]
+MODEL = config["models"]["retrieval"]
 
 
 def augment_query_generated(query, model=MODEL):

@@ -9,13 +9,9 @@ import chromadb
 
 load_dotenv()
 
-EMBEDDING_MODEL = "text-embedding-ada-002"
-
-# embedding_function = OpenAIEmbeddingFunction(
-#     api_key=os.getenv("OPENAI_API"), model_name=EMBEDDING_MODEL
-# )
-
-embedding_function = embedding_functions.SentenceTransformerEmbeddingFunction(model_name="all-MiniLM-L6-v2")
+embedding_function = embedding_functions.SentenceTransformerEmbeddingFunction(
+    model_name="all-MiniLM-L6-v2"
+)
 
 
 class StoreResults:
@@ -41,8 +37,9 @@ class StoreResults:
     def __new__(cls):
         if cls._instance is None:
             cls._instance = super(StoreResults, cls).__new__(cls)
-            cls._instance.chroma_client = chromadb.PersistentClient(path="./chromadb",
-                                                                    settings=Settings(allow_reset=True))
+            cls._instance.chroma_client = chromadb.PersistentClient(
+                path="./chromadb", settings=Settings(allow_reset=True)
+            )
         return cls._instance
 
     def __call__(self, batch: Dict[str, Any]) -> Dict:
@@ -60,7 +57,9 @@ class StoreResults:
             documents: List[str] = batch["text"].tolist()
             embeddings: List[Any] = batch["embeddings"].tolist()
             ids: List[int] = batch["index"].tolist()
-            metadatas: List[Dict[str, str]] = [{"source": value} for value in batch["source"]]
+            metadatas: List[Dict[str, str]] = [
+                {"source": value} for value in batch["source"]
+            ]
 
             self.collection.add(
                 embeddings=embeddings, documents=documents, metadatas=metadatas, ids=ids

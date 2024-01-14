@@ -36,7 +36,7 @@ if __name__ == "__main__":
     chunks_ds = sections_ds.flat_map(chunk_section)
 
     # Embed chunks
-    fn_constructor_kwargs = {"model_name": config["embedding"]["model_name"]}
+    fn_constructor_kwargs = {"model_name": config["models"]["embedding"]}
     embedded_chunks = chunks_ds.map_batches(
         EmbedChunks,
         fn_constructor_kwargs=fn_constructor_kwargs,
