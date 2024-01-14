@@ -6,11 +6,12 @@ from dotenv import load_dotenv
 from loguru import logger
 
 import chromadb
+from config import config
 
 load_dotenv()
 
 embedding_function = embedding_functions.SentenceTransformerEmbeddingFunction(
-    model_name="all-MiniLM-L6-v2"
+    model_name=config["models"]["embedding"]
 )
 
 
