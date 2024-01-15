@@ -18,24 +18,23 @@ def add_unique_id(batch):
     return batch
 
 
-def main():
+if __name__ == "__main__":
+    # Directory path for the documents
     directory_path = Path(__file__).parent / config["directory_path"]
 
+    # Ingest documents from the directory
     langchain_documents = ingest_documents(directory_path)
 
-    ds = ray.data.from_items(langchain_documents)
+    # Create a dataset of documents
+    sections_ds = ray.data.from_items(langchain_documents)
 
-    logger.info(f"{ds.count()} documents")
-    return ds
+    # Log the number of documents
+    logger.info(f"{sections_ds.count()} documents")
 
-
-if __name__ == "__main__":
-    sections_ds = main()
-
-    # Create chunks dataset
+    # Create chunks from the documents
     chunks_ds = sections_ds.flat_map(chunk_section)
 
-    # Embed chunks
+    # Embed the chunks
     fn_constructor_kwargs = {"model_name": config["models"]["embedding"]}
     embedded_chunks = chunks_ds.map_batches(
         EmbedChunks,
@@ -43,11 +42,12 @@ if __name__ == "__main__":
         concurrency=config["batch_processing"]["concurrency"],
     )
 
+    # Add unique IDs to the dataset
     ray_dataset_with_index = embedded_chunks.map_batches(
         add_unique_id, batch_format="pandas"
     )
 
-    # Index data
+    # Index and store the data
     _ = ray_dataset_with_index.map_batches(
         StoreResults,
         batch_size=config["batch_processing"]["batch_size"],
