@@ -1,4 +1,6 @@
 import os
+
+import numpy as np
 from dotenv import load_dotenv
 from openai import OpenAI
 
@@ -7,9 +9,12 @@ from config import config
 from retrieval import augment_query_generated
 from storage import StoreResults
 from tools import word_wrap
+from sentence_transformers import CrossEncoder
 
 load_dotenv()
 openai_client = OpenAI(api_key=os.getenv("OPENAI_API"))
+
+cross_encoder = CrossEncoder("cross-encoder/ms-marco-MiniLM-L-6-v2")
 
 
 class ResearchAssistant:
@@ -50,7 +55,7 @@ class ResearchAssistant:
         """
         return augment_query_generated(query)
 
-    def retrieve_documents(self, query):
+    def retrieve_documents(self, query, n_results=5):
         """
         Retrieve a set of documents relevant to the given query.
 
@@ -61,7 +66,9 @@ class ResearchAssistant:
             list: A list of retrieved documents.
         """
         results = self.store.collection.query(
-            query_texts=[query], n_results=5, include=["documents", "embeddings"]
+            query_texts=[query],
+            n_results=n_results,
+            include=["documents", "embeddings"],
         )
         return results["documents"][0]
 
@@ -95,6 +102,14 @@ class ResearchAssistant:
         )
         return response.choices[0].message.content
 
+    def rerank_documents(self, query, retrieved_documents):
+        pairs = [[query, doc] for doc in retrieved_documents]
+        similarity_scores = cross_encoder.predict(pairs)
+        sim_scores_argsort = np.argsort(similarity_scores)[::-1]
+        original_array = np.array(retrieved_documents)
+        reordered_docs = original_array[sim_scores_argsort]
+        return reordered_docs
+
     def process_query(self, original_query):
         """
         Process an original query through augmentation, document retrieval, and response generation.
@@ -110,7 +125,8 @@ class ResearchAssistant:
         """
         joint_query = self.augment_query(original_query)
         retrieved_documents = self.retrieve_documents(joint_query)
-        output = self.generate_response(original_query, retrieved_documents)
+        reordered_documents = self.rerank_documents(joint_query, retrieved_documents)
+        output = self.generate_response(original_query, reordered_documents)
         return word_wrap(output)
 
 
