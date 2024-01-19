@@ -6,14 +6,14 @@ authors = ["Annthomy Gilles <professional@willofv.mozmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = ">=3.11,<3.13"
+python = ">=3.11,<3.12"
 pre-commit = "^3.6.0"
 pandas = "^2.1.4"
 pyarrow = "^14.0.2"
 beautifulsoup4 = "^4.12.2"
 ruff = "^0.1.9"
 tqdm = "^4.66.1"
-langchain = "^0.0.353"
+langchain = "0.1.1"
 python-dotenv = "^1.0.0"
 pgvector = "^0.2.4"
 psycopg = { extras = ["binary"], version = "^3.1.16" }
@@ -37,6 +37,9 @@ torchaudio = "^2.1.2"
 ray = "^2.9.0"
 umap-learn = "^0.5.5"
 matplotlib = "^3.8.2"
+unstructured = {extras = ["all-docs"], version = "^0.12.0"}
+rich = "^13.7.0"
+trulens-eval = "^0.20.3"
 
 
 [build-system]

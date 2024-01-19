@@ -3,6 +3,8 @@ import os
 import numpy as np
 from dotenv import load_dotenv
 from openai import OpenAI
+from trulens_eval import Tru
+from trulens_eval.tru_custom_app import instrument
 
 from chromadb.utils import embedding_functions
 from config import config
@@ -15,6 +17,7 @@ load_dotenv()
 openai_client = OpenAI(api_key=os.getenv("OPENAI_API"))
 
 cross_encoder = CrossEncoder("cross-encoder/ms-marco-MiniLM-L-6-v2")
+tru = Tru()
 
 
 class ResearchAssistant:
@@ -43,6 +46,7 @@ class ResearchAssistant:
         self.model = config["models"]["retrieval"]
         self.store = StoreResults()
 
+    @instrument
     def augment_query(self, query):
         """
         Augment a given query using a language model.
@@ -55,6 +59,7 @@ class ResearchAssistant:
         """
         return augment_query_generated(query)
 
+    @instrument
     def retrieve_documents(self, query, n_results=5):
         """
         Retrieve a set of documents relevant to the given query.
@@ -72,6 +77,7 @@ class ResearchAssistant:
         )
         return results["documents"][0]
 
+    @instrument
     def generate_response(self, query, retrieved_documents):
         """
         Generate a response to a query based on a set of retrieved documents.
@@ -102,6 +108,7 @@ class ResearchAssistant:
         )
         return response.choices[0].message.content
 
+    @instrument
     def rerank_documents(self, query, retrieved_documents):
         pairs = [[query, doc] for doc in retrieved_documents]
         similarity_scores = cross_encoder.predict(pairs)
@@ -110,6 +117,7 @@ class ResearchAssistant:
         reordered_docs = original_array[sim_scores_argsort]
         return reordered_docs
 
+    @instrument
     def process_query(self, original_query):
         """
         Process an original query through augmentation, document retrieval, and response generation.
