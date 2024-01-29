@@ -48,7 +48,7 @@ This script is designed to act as a virtual assistant for research purposes, cap
 -   **Comprehensive Query Processing**: Enhances, retrieves, and generates responses to user queries using advanced NLP models and methods.
 -   **Document Retrieval and Re-ranking**: Retrieves relevant documents and re-ranks them based on their relevance to the query.
 
-### evaluation.py
+### trulens_evaluation.py
 
 This script establishes a feedback and evaluation system for a `ResearchAssistant` class using [TruLens](https://github.com/truera/trulens/), an evaluation library.
 -   **Feedback and Evaluation System**: Implements a comprehensive system to evaluate the performance of a research assistant model on specific NLP tasks.
