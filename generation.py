@@ -3,21 +3,19 @@ import os
 import numpy as np
 from dotenv import load_dotenv
 from openai import OpenAI
-from trulens_eval import Tru
 from trulens_eval.tru_custom_app import instrument
 
 from chromadb.utils import embedding_functions
 from config import config
 from retrieval import augment_query_generated
 from storage import StoreResults
-from tools import word_wrap
+from tools import word_wrap, call_openai
 from sentence_transformers import CrossEncoder
 
 load_dotenv()
 openai_client = OpenAI(api_key=os.getenv("OPENAI_API"))
 
 cross_encoder = CrossEncoder("cross-encoder/ms-marco-MiniLM-L-6-v2")
-tru = Tru()
 
 
 class ResearchAssistant:
@@ -101,12 +99,8 @@ class ResearchAssistant:
                 "content": f"Question: {query}. \n Information: {information}",
             },
         ]
-        response = openai_client.chat.completions.create(
-            model=self.model,
-            messages=messages,
-            temperature=0.7,
-        )
-        return response.choices[0].message.content
+        response = call_openai(messages, self.model, temperature=0.7)
+        return response
 
     @instrument
     def rerank_documents(self, query, retrieved_documents):
