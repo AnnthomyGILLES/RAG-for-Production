@@ -3,7 +3,7 @@
 
 ## Introduction
 
-This project is dedicated to creating a scalable, high-performance Retrieval-Augmented Generation (RAG) based Large Language Model (LLM) application using Python. The goal is to process an extensive collection of documents efficiently, utilizing the combined power of Ray for distributed computing, ChromaDB for vector storage, and LangChain. This application is designed to go beyond basic chatbot functionalities, aiming to handle complex, large-scale data processing tasks.
+This project is dedicated to creating a scalable, high-performance Retrieval-Augmented Generation (RAG) based Large Language Model (LLM) application using Python. The goal is to process an extensive collection of documents efficiently, utilizing the combined power of Ray for distributed computing, ChromaDB for vector storage, and LangChain. This application is designed to go beyond basic chatbot functionalities, aiming to handle complex, large-scale data processing tasks with the best (and last) discoveries for evaluating the outputs and mitigate halluccination.
 ## Papers
 [Query Expansion by Prompting Large Language Models](https://arxiv.org/abs/2305.03653)
 
